@@ -13,7 +13,7 @@ python3 -m http.server 8000
 ## פריסה
 
 ### Firebase Hosting
-1. ליצור פרויקט ב-Firebase בשם `kadur-habdolach` (או כל שם אחר ולעדכן את `.firebaserc` ואת `projectId` ב-workflow).
+1. פרויקט Firebase: `kad-ball` (מוגדר ב-`.firebaserc` וב-workflow).
 2. `firebase deploy --only hosting`
 3. פריסה אוטומטית ב-push ל-`main`: להריץ פעם אחת `firebase init hosting:github` (יוצר את הסוד `FIREBASE_SERVICE_ACCOUNT`). בלי הסוד ה-workflow מדלג ולא נכשל.
 

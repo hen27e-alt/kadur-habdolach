@@ -17,7 +17,7 @@ jobs:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           channelId: live
-          projectId: kadur-habdolach
+          projectId: kad-ball
       - name: Skipped (no FIREBASE_SERVICE_ACCOUNT secret)
         if: env.HAS_SA != 'true'
         run: echo "Add the FIREBASE_SERVICE_ACCOUNT repo secret (run firebase init hosting:github) to enable deploys."

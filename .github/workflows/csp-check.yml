@@ -1,0 +1,11 @@
+name: CSP check
+on:
+  push:
+  pull_request:
+jobs:
+  csp:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Security headers match index.html
+        run: python3 tools/gen-csp.py --check

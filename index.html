@@ -802,6 +802,7 @@ input[type=date].field{min-height:48px;color-scheme:dark}
             </div>
           </form>
           <article class="panel answer" id="answer" hidden aria-live="polite"></article>
+          <p class="mini-disc">התשובות מיועדות לבידור בלבד, ואינן תחליף לייעוץ רפואי, משפטי או כלכלי.</p>
           <div class="chips-title">או בחרו שאלה מוכנה</div>
           <div class="chips" id="chips"></div>
           <button class="link-btn" id="shakeBtn" type="button" hidden>הפעלת ניעור הטלפון כדי לשאול</button>
@@ -812,7 +813,7 @@ input[type=date].field{min-height:48px;color-scheme:dark}
     <!-- ===================== DAILY CARD ===================== -->
     <section class="view" id="view-card" data-view="card" aria-label="קלף היום">
       <button type="button" class="sub-back" data-go="hub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>גילויים</button>
-      <div class="view-head"><h2>קלף היום</h2><p>22 קלפי הארקנה הגדולה. קלף אחד לכל יום, או פריסה של עבר, הווה ועתיד.</p></div>
+      <div class="view-head"><h2>קלף היום</h2><p>22 קלפי הארקנה הגדולה. קלף אחד לכל יום, או פריסה של עבר, הווה ועתיד. לבידור בלבד, ללא ייעוץ מקצועי.</p></div>
       <div class="narrow">
         <div class="seg" role="group" aria-label="מצב קלפים">
           <button type="button" id="modeDaily" aria-pressed="true">קלף היום</button>
@@ -849,7 +850,7 @@ input[type=date].field{min-height:48px;color-scheme:dark}
     <!-- ===================== ZODIAC ===================== -->
     <section class="view" id="view-zodiac" data-view="zodiac" aria-label="מזלות">
       <button type="button" class="sub-back" data-go="hub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>גילויים</button>
-      <div class="view-head"><h2>מזלות</h2><p>הזינו יום וחודש לידה, והכדור יזהה את המזל שלכם וישמור אותו.</p></div>
+      <div class="view-head"><h2>מזלות</h2><p>הזינו יום וחודש לידה, והכדור יזהה את המזל שלכם וישמור אותו. ההורוסקופ לבידור בלבד.</p></div>
       <div class="narrow">
         <div class="panel">
           <div class="row">
@@ -1086,7 +1087,7 @@ input[type=date].field{min-height:48px;color-scheme:dark}
       </div>
     </section>
 
-    <p class="disclaimer">כדור בדולח נועד לשעשוע ולהנאה בלבד. התשובות נוצרות במכשיר שלכם לפי מילות מפתח, תאריך וכמות קטנה של מזל, ואינן ייעוץ רפואי, משפטי, כלכלי או נפשי. החלטות חשובות מקבלים בשיקול דעת, ועם אנשי מקצוע.</p>
+    <p class="disclaimer">כדור בדולח נועד לשעשוע ולהנאה בלבד. התשובות נוצרות במכשיר שלכם לפי מילות מפתח, תאריך וכמות קטנה של מזל, ואינן ייעוץ רפואי, משפטי, כלכלי או נפשי. החלטות חשובות מקבלים בשיקול דעת, ועם אנשי מקצוע. השמות, תאריכי הלידה והיומן נשמרים בדפדפן שלכם בלבד ולא נשלחים לשרת. הגופנים נטענים מ-Google Fonts.</p>
   </main>
 </div>
 
@@ -1158,6 +1159,7 @@ function dateStr(offset = 0){
 const WEEKDAYS = ['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
 const HE_MONTHS = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
 function fmtDate(ts){
+  if (isNaN(new Date(ts).getTime())) return '';
   try { return new Date(ts).toLocaleString('he-IL', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }); }
   catch (e) { return new Date(ts).toISOString().slice(0, 16).replace('T', ' '); }
 }
@@ -1960,7 +1962,10 @@ function loop(ts){
   const dt = Math.min(.05, ((ts - lastTs) / 1000) || .016); lastTs = ts;
   starAcc += dt;
   if (starAcc >= 1 / 30){ if (!reduceMotion()) starsDraw(starAcc); starAcc = 0; }
-  if (currentView === 'ball' && Orb.visible) orbDraw(dt);
+  if (currentView === 'ball' && Orb.visible){
+    if (reduceMotion() && Math.abs(Orb.energy - Orb.target) < .01 && Orb._rmDrawn){ return; }
+    orbDraw(dt); Orb._rmDrawn = true;
+  }
 }
 function startLoop(){ if (!rafId){ lastTs = performance.now(); rafId = requestAnimationFrame(loop); } }
 document.addEventListener('visibilitychange', () => {
@@ -1988,7 +1993,7 @@ const H_TYPES = {
   horo:{ label:'הורוסקופ', icon:ICON.zodiac },
   num:{ label:'נומרולוגיה', icon:ICON.num }
 };
-function getHistory(){ const h = store.get('history', []); return Array.isArray(h) ? h : []; }
+function getHistory(){ const h = store.get('history', []); return Array.isArray(h) ? h.filter(x => x && typeof x === 'object' && x.id != null) : []; }
 function addHistory(e){
   const h = getHistory();
   if (h.some(x => x.id === e.id)) return false;
@@ -3332,7 +3337,7 @@ function initChinese(){
     e.preventDefault();
     const err = $('#cnErr'); err.textContent = '';
     const p = parseISODate($('#cnDate').value);
-    if (!validBirth(p, err)) return;
+    if (!validBirth(p, err)){ $('#cnResult').innerHTML = ''; return; }
     store.set('bfull', p.iso);
     cnRender(cnProfile(p.iso, $('#cnTime').value));
   });
@@ -4381,7 +4386,7 @@ FEATURE_INITS.push(initAngel);
 $('#soundBtn').addEventListener('click', () => setSound(!Snd.on));
 if (window.parent !== window){
   const back = $('#backBtn'); back.hidden = false;
-  back.addEventListener('click', () => { try { window.parent.closeBrowser(); } catch (e) { history.back(); } });
+  back.addEventListener('click', () => { try { window.parent.closeBrowser(); } catch (e) { try { window.parent.postMessage({ type:'crm:close' }, '*'); } catch (_) {} } });
 }
 window.addEventListener('pointermove', e => { Stars.tx = (e.clientX / window.innerWidth - .5) * 2; Stars.ty = (e.clientY / window.innerHeight - .5) * 2; }, { passive:true });
 window.addEventListener('scroll', () => { Stars.sy = window.scrollY; }, { passive:true });
